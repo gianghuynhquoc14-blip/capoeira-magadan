@@ -341,3 +341,20 @@ body:not(.depth-mode) .welcome,body:not(.depth-mode) .contact-scene{background:v
 .welcome .hero-copy .hero-lead{font-size:clamp(20px,2.1vw,27px);line-height:1.35;font-weight:650;margin:22px auto 14px}
 @media(max-width:600px){.welcome .hero-copy .hero-lead{font-size:19px;margin:16px auto 12px}}
 @media(max-width:600px) and (max-height:700px){.welcome .hero-copy .hero-lead{font-size:17px;margin:12px auto 10px}}
+
+/* Leave the lower middle of the waterfront free for the children's game. */
+@media(min-width:1001px){
+ .depth-mode .welcome{align-items:flex-start;padding-top:clamp(78px,14vh,105px)}
+ .welcome .hero-copy h1{font-size:clamp(62px,6vw,84px)}
+ .welcome .hero-copy .hero-lead{font-size:24px;margin:12px auto 6px}
+ .welcome .hero-copy .hero-description{font-size:16px;margin-bottom:8px}
+ .welcome .hero-copy .hero-description br{display:none}
+ .welcome .hero-copy .hero-actions{gap:6px}
+ .welcome .hero-copy .hero-audience-note{margin-top:8px}
+ .welcome .hero-copy .hero-meta{margin-top:4px}
+}
+@media(min-width:1001px) and (max-height:719px){
+ .welcome .hero-copy h1{font-size:62px}
+ .welcome .hero-copy .hero-description{display:none}
+}
+@media(max-width:600px){body[data-chapter=welcome] #scroll-hint{position:absolute;right:0;bottom:100px}}

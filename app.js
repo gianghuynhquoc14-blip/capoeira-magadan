@@ -72,9 +72,13 @@ function renderHeroCoast(progress,weight){
   // Vertical registration stays fixed: only the two land masses spread sideways.
   setStyle(layer,'transform',`translate3d(${x.toFixed(2)}px,${(isHeadland?shorelineOffset(layer):0).toFixed(2)}px,0)`);
  });
- // Foreground bodies never crossfade. They leave the camera below as it advances.
- setStyle(heroForeground,'visibility',weight>.14?'visible':'hidden');
- setStyle(heroForeground,'willChange',weight>.14?'transform':'auto');
+ // A long scroll-driven dissolve avoids a visible cut at the chapter boundary.
+ const dissolve=Math.max(0,Math.min(1,(progress-.30)/.78));
+ const dissolveEase=dissolve*dissolve*(3-2*dissolve),foregroundOpacity=1-dissolveEase;
+ setStyle(heroForeground,'visibility',foregroundOpacity>.001?'visible':'hidden');
+ setStyle(heroForeground,'opacity',foregroundOpacity);
+ setStyle(heroForeground,'filter',dissolve>0?`blur(${(dissolve*(innerWidth<=600?8:12)).toFixed(2)}px)`:'none');
+ setStyle(heroForeground,'willChange',foregroundOpacity>.001?(dissolve>0?'transform, opacity, filter':'transform'):'auto');
  setStyle(heroForeground,'transform',`translate3d(0,${(travel*innerHeight*.085).toFixed(2)}px,0) scale(${(1+travel*.12).toFixed(4)})`);
 }
 function renderMusicAtmosphere(progress,weight){
@@ -130,6 +134,7 @@ function applyMode(next,{restore=true}={}){
   welcomeScene.prepend(heroCoast,heroForeground);
   setStyle(heroCoast,'visibility','visible');setStyle(heroCoast,'opacity',1);
   setStyle(heroForeground,'visibility','visible');setStyle(heroForeground,'transform','none');
+  setStyle(heroForeground,'opacity',1);setStyle(heroForeground,'filter','none');
   setStyle(heroForeground,'willChange','auto');
   heroCoastLayers.forEach(layer=>{setStyle(layer,'transform','none');setStyle(layer,'willChange','auto');});
   registerFlatHeadlands();
