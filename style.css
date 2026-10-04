@@ -266,6 +266,9 @@ body:not(.depth-mode) .welcome,body:not(.depth-mode) .contact-scene{background:v
 @media(max-width:1000px){
  .depth-mode .welcome{padding-top:105px;padding-bottom:105px}
  .depth-mode .welcome .hero-copy{max-height:calc(100svh - 290px)}
+ .hero-foreground{inset:0}
+ .hero-foreground-art{inset:auto 0 0;aspect-ratio:2/1}
+ .hero-foreground-art img{object-fit:contain}
 }
 @media(max-width:600px){
  .hero-coast-layer{inset:-4% -10%}
