@@ -336,3 +336,13 @@ body:not(.depth-mode) .welcome,body:not(.depth-mode) .contact-scene{background:v
 }
 @media(max-height:700px){.coach-pose{width:80px;bottom:84px;opacity:.20}.coach-instrument{opacity:.22}}
 @media(max-width:1000px) and (max-height:700px){.coach-instrument{display:none}}
+
+/* The welcome message leads; the club name remains a quiet signature. */
+.welcome .hero-copy .hero-club-name{font-size:14px;font-weight:650;letter-spacing:.12em;margin:0 auto 14px}
+.welcome .hero-copy h1{font-size:clamp(44px,5.3vw,74px);line-height:1.1;text-transform:none;letter-spacing:-.02em}
+.welcome .hero-copy .hero-description{margin-top:22px}
+@media(max-width:600px){
+ .welcome .hero-copy .hero-club-name{font-size:12px;margin-bottom:12px;letter-spacing:.08em}
+ .welcome .hero-copy h1{font-size:clamp(36px,10.5vw,48px)}
+ .welcome .hero-copy .hero-description{margin-top:18px}
+}
