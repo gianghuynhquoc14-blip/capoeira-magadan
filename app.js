@@ -8,15 +8,16 @@ const track=$('#scroll-track');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 const canvas=$('#depth-canvas');
 const ctx=canvas.getContext('2d');
-const players=$('.players'),instruments=$('.instruments');
-const mobilePlayers=$('.mobile-players'),mobileInstruments=$('.mobile-instruments');
+const instruments=$('.instruments'),mobileInstruments=$('.mobile-instruments');
+const clubMark=$('.brand img');
 const chapterLinks=$$('.journey-nav a'),chapterCurrent=$('#chapter-current'),scrollHint=$('#scroll-hint');
 const styleCache=new WeakMap();
 let paintedChapter=-1,paintedFlat=null,lastDepth=null;
 function setStyle(el,key,value){let saved=styleCache.get(el);if(!saved){saved={};styleCache.set(el,saved);}if(saved[key]===value)return;saved[key]=value;el.style[key]=value;}
 let flat=false,current=0,span=innerHeight*1.65,lastHeight=innerHeight,raf=0,px=0,py=0;
 let day='Понедельник',priceDirection='Капоэйра';
-const palette=scenes.map(s=>s.id==='prices'?'#fff8dc':s.id==='music'?'#e9f3ec':'#e6f2f7');
+const sceneColors={welcome:'#e4f3fa',directions:'#f3f9fc',history:'#e1f0f7',coaches:'#f3f9fc',music:'#e1f2eb',schedule:'#eaf5fa',prices:'#fff6d7',contact:'#e2f0f8'};
+const palette=scenes.map(s=>sceneColors[s.id]||sceneColors.welcome);
 $('#chapter-total').textContent=String(scenes.length).padStart(2,'0');
 const directions={
  'Капоэйра':{title:'Игра, в которой встречаются движение и ритм.',text:'Капоэйра соединяет движения, взаимодействие с партнёром и музыку. Есть группы для детей, подростков и взрослых.',age:'От 4 лет · группы по возрасту'},
@@ -41,34 +42,58 @@ $$('a[href^="#"]').forEach(link=>link.addEventListener('click',e=>{const index=i
 window.addEventListener('popstate',()=>navigate(indexForHash(location.hash),{replace:true}));
 function setCurrent(index){current=index;if(paintedChapter===index&&paintedFlat===flat)return;paintedChapter=index;paintedFlat=flat;scenes.forEach((scene,i)=>{scene.classList.toggle('active',i===index);if(!flat){scene.inert=i!==index;scene.setAttribute('aria-hidden',String(i!==index));}else{scene.inert=false;scene.removeAttribute('aria-hidden');}});chapterLinks.forEach((a,i)=>{a.classList.toggle('active',i===index);if(i===index)a.setAttribute('aria-current','step');else a.removeAttribute('aria-current');});document.body.dataset.chapter=scenes[index].id;if(!flat){document.documentElement.style.setProperty('--blue',palette[index]);document.body.style.backgroundColor=palette[index];}chapterCurrent.textContent=String(index+1).padStart(2,'0');scrollHint.innerHTML=index===0?'Прокрути, чтобы войти в круг <svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"></path></svg>':index===scenes.length-1?'Ты в круге. Давай знакомиться.':'Листай дальше <svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"></path></svg>';}
 function sizeCanvas(){lastDepth=null;const dpr=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(innerWidth*dpr);canvas.height=Math.round(innerHeight*dpr);ctx?.setTransform(dpr,0,0,dpr,0,0);}
-// Sparse floating accents: deterministic geometry, rendered only on input or resize.
-const particles=Array.from({length:18},(_,i)=>({side:i%2?1:-1,y:((i*7)%19)/19,z:2+(i%6)*.8,angle:i*2.399}));
+// Objects share one camera distance. The canvas stays idle without user input.
+const floatingObjects=Array.from({length:16},(_,i)=>({
+ side:i%2?1:-1, x:4.8+(i%3)*1.8, y:((i*7)%11-5)*.52,
+ z:1.2+i*.79, angle:i*2.399, kind:i%4
+}));
+for(const image of [instruments,clubMark])image.addEventListener('load',()=>{lastDepth=null;requestRender();});
 function drawDepth(progress){
  if(!ctx)return;
  const w=innerWidth,h=innerHeight;
  if(lastDepth&&lastDepth.progress===progress&&lastDepth.px===px&&lastDepth.py===py&&lastDepth.w===w&&lastDepth.h===h)return;
  lastDepth={progress,px,py,w,h};ctx.clearRect(0,0,w,h);
- for(const p of particles){
-  const depth=2+((p.z-progress*.28+8)%4.8),scale=3/depth;
-  const x=w*.5+p.side*w*(.34+.085*Math.sin(p.angle+progress*.3))+px*12*scale;
-  const y=h*(.13+p.y*.74)+Math.sin(progress*.55+p.angle)*18+py*9*scale;
-  const radius=(p.z<3?3.8:2.1)*scale,angle=p.angle+progress*.36;
-  ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha=.18+(.12/depth);
-  ctx.strokeStyle=p.z<3?'#b39328':'#10394e';ctx.fillStyle=p.z<3?'#f8cd36':'#527d90';ctx.lineWidth=.75;
-  if(p.z<3){ctx.beginPath();ctx.ellipse(0,0,radius*2.7,radius,0,0,Math.PI*1.45);ctx.stroke();}
-  else{ctx.beginPath();ctx.moveTo(0,-radius);ctx.lineTo(radius*.65,0);ctx.lineTo(0,radius);ctx.lineTo(-radius*.65,0);ctx.closePath();ctx.fill();}
+ const focal=Math.min(w*.86,h*1.05),atlasReady=instruments.complete&&instruments.naturalWidth>0;
+ const sprites=[[0,0,.23,1],[.65,.57,.20,.43],[.74,.02,.24,.94]];
+ for(const object of floatingObjects){
+  const z=.9+((object.z-progress*3.1)%12.8+12.8)%12.8;
+  const scale=4.4/z, x=w*.5+(object.side*object.x-px*.28)*focal/z;
+  const y=h*.5+(object.y-py*.2)*focal/z;
+  const size=Math.min(88,28*scale),angle=object.angle+progress*.46;
+  if(x < -size*2||x>w+size*2||y < -size*2||y>h+size*2)continue;
+  // Protect the reading area even when a distant object projects near the center.
+  if(Math.abs(x-w*.5)<Math.min(w*.31,440)+size*.6&&y>h*.13&&y<h*.81)continue;
+  ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(angle)*.3);
+  ctx.scale(.84+.16*Math.cos(angle),1);
+  ctx.globalAlpha=Math.min(.54,.18+scale*.14)*Math.min(1,(13.7-z)*.7);
+  if(object.kind<3&&atlasReady){
+   const [sx,sy,sw,sh]=sprites[object.kind];
+   const cropW=instruments.naturalWidth*sw,cropH=instruments.naturalHeight*sh;
+   const height=size*1.45,width=height*cropW/cropH;
+   ctx.drawImage(instruments,sx*instruments.naturalWidth,sy*instruments.naturalHeight,cropW,cropH,-width/2,-height/2,width,height);
+  }else if(clubMark.complete&&clubMark.naturalWidth>0){
+   ctx.drawImage(clubMark,-size*.35,-size*.35,size*.7,size*.7);
+  }
   ctx.restore();
  }
 }
 function render(){raf=0;if(flat){let idx=0;scenes.forEach((s,i)=>{if(s.getBoundingClientRect().top<=innerHeight*.45)idx=i;});setCurrent(idx);return;}
-const progress=Math.max(0,Math.min(scenes.length-1,scrollY/span));const base=Math.floor(progress),phase=progress-base;const t=Math.max(0,Math.min(1,(phase-.6)/.4));const eased=t*t*(3-2*t);const active=Math.min(scenes.length-1,base+(eased>.5?1:0));setCurrent(active);
-scenes.forEach((scene,i)=>{let opacity=0,z=-1500;if(i===base){opacity=1-eased;z=eased*650;}else if(i===base+1){opacity=eased;z=-950*(1-eased);}const visible=opacity>.01;setStyle(scene,'visibility',visible?'visible':'hidden');setStyle(scene,'willChange',visible?'transform, opacity':'auto');if(visible){setStyle(scene,'opacity',opacity);setStyle(scene,'transform',`translateZ(${z}px)`);}});
-const peopleWeight=id=>['welcome','directions','coaches','contact'].includes(id)?1:0;
-const playerWeight=peopleWeight(scenes[base].id)*(1-eased)+(scenes[base+1]?peopleWeight(scenes[base+1].id)*eased:0);
+const progress=Math.max(0,Math.min(scenes.length-1,scrollY/span));const base=Math.floor(progress),phase=progress-base;const t=Math.max(0,Math.min(1,(phase-.48)/.52));const eased=t*t*(3-2*t);const active=Math.min(scenes.length-1,base+(eased>.5?1:0));setCurrent(active);
+const direction=base%2? -1:1, width=innerWidth, gap=1900;
+scenes.forEach((scene,i)=>{
+ let visible=false,x=0,z=-gap,angle=0;
+ if(i===base){z=eased*gap;x=-direction*eased*width*.68;angle=direction*eased*8;visible=eased<.57;}
+ else if(i===base+1){z=-(1-eased)*gap;x=direction*(1-eased)*width*.68;angle=-direction*(1-eased)*10;visible=eased>.08;}
+ setStyle(scene,'visibility',visible?'visible':'hidden');
+ setStyle(scene,'willChange',visible?'transform':'auto');
+ if(visible){setStyle(scene,'opacity',1);setStyle(scene,'transform',`translate3d(${x.toFixed(2)}px,0,${z.toFixed(2)}px) rotateY(${angle.toFixed(2)}deg)`);}
+});
 const musicWeight=(scenes[base].id==='music'?1-eased:0)+(scenes[base+1]?.id==='music'?eased:0);
-const mobile=innerWidth<601;const magnify=1+eased*.8;const playerScale=base<3?1+progress*.20:1;setStyle(players,'opacity',playerWeight*(mobile?.38:.95));if(!mobile&&playerWeight>0)setStyle(players,'transform',`translate(calc(-50% + ${px*12}px),-43%) scale(${playerScale})`);setStyle(instruments,'opacity',musicWeight*(mobile?.38:1));if(!mobile&&musicWeight>0)setStyle(instruments,'transform',`translate(calc(-50% + ${px*8}px),-43%) scale(${scenes[base].id==='music'?magnify:1})`);setStyle(mobilePlayers,'opacity',playerWeight*.75);setStyle(mobileInstruments,'opacity',musicWeight*.8);drawDepth(progress);}
+setStyle(instruments,'opacity',musicWeight*.75);
+setStyle(mobileInstruments,'opacity',musicWeight*.72);
+drawDepth(progress);}
 function requestRender(){if(!raf)raf=requestAnimationFrame(render);}
-function applyMode(next,{restore=true}={}){const index=current;flat=next;paintedChapter=-1;document.body.classList.toggle('flat-mode',flat);document.body.classList.toggle('depth-mode',!flat);span=Math.max(innerHeight*1.65,900);track.style.height=flat?'0px':`${span*(scenes.length-1)+innerHeight}px`;scenes.forEach(s=>{styleCache.delete(s);s.style.willChange='';s.style.transform='';s.style.opacity='';s.style.visibility='';s.inert=false;s.removeAttribute('aria-hidden');});$('#motion-toggle').setAttribute('aria-pressed',String(flat));$('#motion-toggle span').textContent=flat?'Включить глубину':'Без анимации';document.documentElement.style.setProperty('--blue','#e6f2f7');document.body.style.backgroundColor='';sizeCanvas();if(restore){if(flat)window.scrollTo({top:scenes[index].offsetTop,behavior:'instant'});else window.scrollTo({top:index*span,behavior:'instant'});}requestRender();}
+function applyMode(next,{restore=true}={}){const index=current;flat=next;paintedChapter=-1;document.body.classList.toggle('flat-mode',flat);document.body.classList.toggle('depth-mode',!flat);span=Math.max(innerHeight*1.65,900);track.style.height=flat?'0px':`${span*(scenes.length-1)+innerHeight}px`;scenes.forEach(s=>{styleCache.delete(s);s.style.willChange='';s.style.transform='';s.style.opacity='';s.style.visibility='';s.inert=false;s.removeAttribute('aria-hidden');});$('#motion-toggle').setAttribute('aria-pressed',String(flat));$('#motion-toggle span').textContent=flat?'Включить глубину':'Без анимации';document.documentElement.style.setProperty('--blue',sceneColors.welcome);document.body.style.backgroundColor='';sizeCanvas();if(restore){if(flat)window.scrollTo({top:scenes[index].offsetTop,behavior:'instant'});else window.scrollTo({top:index*span,behavior:'instant'});}requestRender();}
 $('#motion-toggle').addEventListener('click',()=>{applyMode(!flat);try{localStorage.setItem('capoeira-motion',flat?'flat':'depth');}catch{}});
 window.addEventListener('scroll',requestRender,{passive:true});window.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'||flat)return;px=e.clientX/innerWidth-.5;py=e.clientY/innerHeight-.5;requestRender();},{passive:true});
 window.addEventListener('resize',()=>{if(Math.abs(innerHeight-lastHeight)>150||innerWidth>600){const i=current;lastHeight=innerHeight;span=Math.max(innerHeight*1.65,900);track.style.height=flat?'0px':`${span*(scenes.length-1)+innerHeight}px`;if(!flat)window.scrollTo({top:i*span,behavior:'instant'});}sizeCanvas();requestRender();},{passive:true});
