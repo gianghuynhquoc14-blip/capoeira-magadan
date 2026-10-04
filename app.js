@@ -13,6 +13,7 @@ const coastLayers=$$('[data-depth]',landscape),historyIndex=scenes.indexOf(histo
 const heroCoast=$('#hero-coast'),welcomeScene=$('#welcome'),heroCoastLayers=$$('[data-depth]',heroCoast);
 const heroForeground=$('#hero-foreground'),musicAtmosphere=$('.music-atmosphere'),musicMotes=$$('.music-mote');
 const musicIndex=scenes.findIndex(scene=>scene.id==='music');
+const edgeAtmospheres=['coaches','schedule'].map(id=>{const element=$('#'+id+'-atmosphere');return{element,scene:$('#'+id),index:scenes.findIndex(s=>s.id===id),parts:$$('[data-shift]',element)};});
 const clubMap=$('#club-map');function loadClubMap(){if(!clubMap.getAttribute('src'))clubMap.src=clubMap.dataset.src;}
 const chapterLinks=$$('.journey-nav a'),chapterCurrent=$('#chapter-current'),scrollHint=$('#scroll-hint');
 const styleCache=new WeakMap();
@@ -46,6 +47,8 @@ $$('a[href^="#"]').forEach(link=>link.addEventListener('click',e=>{const index=i
 window.addEventListener('popstate',()=>navigate(indexForHash(location.hash),{replace:true}));
 function setCurrent(index){current=index;if(scenes[index].id==='contact')loadClubMap();if(paintedChapter===index&&paintedFlat===flat)return;paintedChapter=index;paintedFlat=flat;scenes.forEach((scene,i)=>{scene.classList.toggle('active',i===index);if(!flat){scene.inert=i!==index;scene.setAttribute('aria-hidden',String(i!==index));}else{scene.inert=false;scene.removeAttribute('aria-hidden');}});chapterLinks.forEach((a,i)=>{a.classList.toggle('active',i===index);if(i===index)a.setAttribute('aria-current','step');else a.removeAttribute('aria-current');});document.body.dataset.chapter=scenes[index].id;if(!flat){document.documentElement.style.setProperty('--blue',palette[index]);document.body.style.backgroundColor=palette[index];}chapterCurrent.textContent=String(index+1).padStart(2,'0');scrollHint.innerHTML=index===0?'Прокрути, чтобы войти в круг <svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"></path></svg>':index===scenes.length-1?'Ты в круге. Давай знакомиться.':'Листай дальше <svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"></path></svg>';}
 function resetLandscape(){lastLandscape=null;}
+function shorelineOffset(layer){return -Math.max(layer.clientHeight,layer.clientWidth/2)*(34/887);}
+function registerFlatHeadlands(){heroCoastLayers.forEach(layer=>{if(layer.dataset.side!==undefined)setStyle(layer,'transform',`translate3d(0,${shorelineOffset(layer).toFixed(2)}px,0)`);});}
 function renderLandscape(progress,weight){
  setStyle(landscape,'visibility',weight>.005?'visible':'hidden');setStyle(landscape,'opacity',weight);
  coastLayers.forEach(layer=>setStyle(layer,'willChange',weight>.005?'transform':'auto'));
@@ -64,8 +67,10 @@ function renderHeroCoast(progress,weight){
  const local=Math.max(0,Math.min(1,progress)),travel=Math.min(1,local/.72);
  heroCoastLayers.forEach(layer=>{
   setStyle(layer,'willChange',weight>.005?'transform':'auto');if(weight<=.005)return;
-  const depth=Number(layer.dataset.depth),offset=layer.classList.contains('hero-coast-headlands')?-innerHeight*.038:0;
-  setStyle(layer,'transform',`translate3d(0,${(offset-local*depth*innerHeight*.32).toFixed(2)}px,0) scale(${(1+local*depth*.09).toFixed(4)})`);
+  const isHeadland=layer.dataset.side!==undefined;
+  const x=isHeadland?Number(layer.dataset.side)*local*innerWidth*.055:0;
+  // Vertical registration stays fixed: only the two land masses spread sideways.
+  setStyle(layer,'transform',`translate3d(${x.toFixed(2)}px,${(isHeadland?shorelineOffset(layer):0).toFixed(2)}px,0)`);
  });
  // Foreground bodies never crossfade. They leave the camera below as it advances.
  setStyle(heroForeground,'visibility',weight>.14?'visible':'hidden');
@@ -84,6 +89,18 @@ function renderMusicAtmosphere(progress,weight){
   setStyle(mote,'filter',`blur(${Math.max(0,(z-1.5)*1.3).toFixed(2)}px)`);
  });
 }
+function sceneWeight(index,base,eased){return(base===index?1-eased:0)+(base+1===index?eased:0);}
+function renderEdgeAtmospheres(progress,base,eased){
+ edgeAtmospheres.forEach(({element,index,parts})=>{
+  const weight=sceneWeight(index,base,eased);
+  setStyle(element,'visibility',weight>.005?'visible':'hidden');setStyle(element,'opacity',weight);
+  const local=Math.max(-.75,Math.min(.75,progress-index));
+  parts.forEach(part=>{
+   setStyle(part,'willChange',weight>.005?'transform':'auto');
+   if(weight>.005)setStyle(part,'transform',`translate3d(0,${(local*innerHeight*Number(part.dataset.shift)).toFixed(2)}px,0)`);
+  });
+ });
+}
 function render(){raf=0;if(flat){let idx=0;scenes.forEach((s,i)=>{if(s.getBoundingClientRect().top<=innerHeight*.45)idx=i;});setCurrent(idx);return;}
 const progress=Math.max(0,Math.min(scenes.length-1,scrollY/span));const base=Math.floor(progress),phase=progress-base;const t=Math.max(0,Math.min(1,(phase-.48)/.52));const eased=t*t*(3-2*t);const active=Math.min(scenes.length-1,base+(eased>.5?1:0));setCurrent(active);
 const direction=base%2? -1:1, width=innerWidth, gap=1900;
@@ -99,6 +116,7 @@ const musicWeight=(scenes[base].id==='music'?1-eased:0)+(scenes[base+1]?.id==='m
 setStyle(instruments,'opacity',musicWeight*.75);
 setStyle(mobileInstruments,'opacity',musicWeight*.72);
 renderMusicAtmosphere(progress,musicWeight);
+renderEdgeAtmospheres(progress,base,eased);
 const coastWeight=base===historyIndex-1?eased:base===historyIndex?1-eased:0;
 renderLandscape(progress,coastWeight);
 renderHeroCoast(progress,base===0?1-eased:0);}
@@ -108,15 +126,18 @@ function applyMode(next,{restore=true}={}){
  document.body.classList.toggle('flat-mode',flat);document.body.classList.toggle('depth-mode',!flat);
  if(flat){
   loadClubMap();setStyle(musicAtmosphere,'visibility','hidden');
+  edgeAtmospheres.forEach(({element,scene,parts})=>{scene.prepend(element);setStyle(element,'visibility','visible');setStyle(element,'opacity',1);parts.forEach(part=>{setStyle(part,'transform','none');setStyle(part,'willChange','auto');});});
   welcomeScene.prepend(heroCoast,heroForeground);
   setStyle(heroCoast,'visibility','visible');setStyle(heroCoast,'opacity',1);
   setStyle(heroForeground,'visibility','visible');setStyle(heroForeground,'transform','none');
   setStyle(heroForeground,'willChange','auto');
   heroCoastLayers.forEach(layer=>{setStyle(layer,'transform','none');setStyle(layer,'willChange','auto');});
+  registerFlatHeadlands();
   historyScene.prepend(landscape);setStyle(landscape,'visibility','visible');setStyle(landscape,'opacity',1);
   coastLayers.forEach(layer=>{setStyle(layer,'transform','none');setStyle(layer,'willChange','auto');});
  }else{
   $('.world').prepend(heroCoast,heroForeground,landscape);
+  edgeAtmospheres.forEach(({element})=>{$('.world').append(element);setStyle(element,'visibility','hidden');setStyle(element,'opacity',0);});
   setStyle(heroCoast,'visibility','hidden');setStyle(heroCoast,'opacity',0);
   setStyle(heroForeground,'visibility','hidden');
   setStyle(landscape,'visibility','hidden');setStyle(landscape,'opacity',0);
@@ -136,6 +157,7 @@ window.addEventListener('resize',()=>{
   lastHeight=innerHeight;span=Math.max(innerHeight*1.65,900);
  }
  track.style.height=flat?'0px':`${span*(scenes.length-1)+innerHeight}px`;
+ if(flat)registerFlatHeadlands();
  if(!flat&&(restore||index===scenes.length-1))window.scrollTo({top:index*span,behavior:'instant'});
  resetLandscape();requestRender();
 },{passive:true});
