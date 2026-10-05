@@ -231,8 +231,8 @@ window.CLUB_CONTENT = {
       "time": "15:00:00",
       "direction": "Батукада",
       "coach": "",
-      "age": "Старт",
-      "description": "15:00–17:00. БАТУКАДА (Старт)"
+      "age": "—",
+      "description": "15:00–17:00. БАТУКАДА"
     }
   ],
   "tariffs": [

@@ -28,12 +28,12 @@ const directions={
  'Капоэйра':{title:'Игра, в которой встречаются движение и ритм.',text:'Капоэйра соединяет движения, взаимодействие с партнёром и музыку. Есть группы для детей, подростков и взрослых.',age:'От 4 лет · группы по возрасту'},
  'Музыка':{title:'Познакомься с голосом капоэйры.',text:'Отдельные занятия музыкой проходят по субботам. Беримбау, атабаке и пандейру помогают услышать ритм игры.',age:'10+ · суббота, 12:00–13:00'},
  'Акробатика':{title:'Открой новые возможности движения.',text:'Акробатика — отдельное направление субботних занятий. Можно посещать самостоятельно или вместе с капоэйрой.',age:'7+ · суббота, 13:00–14:00'},
- 'Батукада':{title:'Почувствуй ритм вместе с другими.',text:'Батукада — самостоятельное направление. В расписании есть субботняя группа «Старт». Для учеников капоэйры предусмотрены условия подключения к основному абонементу.',age:'Группа «Старт» · суббота, 15:00–17:00'}
+ 'Батукада':{title:'Почувствуй ритм вместе с другими.',text:'Батукада — самостоятельное направление. Занятия проходят по субботам. Для учеников капоэйры предусмотрены условия подключения к основному абонементу.',age:'Суббота · 15:00–17:00'}
 };
 function node(tag,text,className){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el;}
 function tabGroup(selector,onSelect){const group=$(selector);const tabs=$$('[role=tab]',group);function select(btn){tabs.forEach(t=>{t.setAttribute('aria-selected',String(t===btn));t.tabIndex=t===btn?0:-1;});const panel=$('#'+btn.getAttribute('aria-controls'));panel.setAttribute('aria-labelledby',btn.id);onSelect(btn);requestRender();}tabs.forEach((t,i)=>{t.addEventListener('click',()=>select(t));t.addEventListener('keydown',e=>{let j;if(e.key==='ArrowRight')j=(i+1)%tabs.length;if(e.key==='ArrowLeft')j=(i-1+tabs.length)%tabs.length;if(e.key==='Home')j=0;if(e.key==='End')j=tabs.length-1;if(j!==undefined){e.preventDefault();select(tabs[j]);tabs[j].focus();}});});return select;}
 const chooseDirection=tabGroup('.direction-tabs',btn=>{const d=directions[btn.dataset.direction];const p=$('#direction-panel');p.replaceChildren(node('h3',d.title),node('p',d.text),node('span',d.age,'age-line'));});
-function renderSchedule(){const coach=$('#coach-filter').value;const rows=content.schedule.filter(r=>r.day===day&&(coach==='all'||r.coach===coach)).sort((a,b)=>a.time.localeCompare(b.time));$('#schedule-day').textContent=day;const list=$('#schedule-list');list.replaceChildren();rows.forEach(r=>{const row=node('div',undefined,'schedule-row');row.setAttribute('aria-label',`${r.description}, ${r.direction}, ${r.coach}, ${r.age}`);const match=r.description.match(/^(\d{2}:\d{2}[–-]\d{2}:\d{2})\.?\s*(.*)$/);row.append(node('span',match?match[1]:r.time.slice(0,5),'schedule-time'));const activity=node('span',r.direction);if(match&&match[2])activity.append(node('span',match[2],'schedule-sub'));row.style.setProperty('--row-order',list.children.length);row.append(activity,node('span',r.coach||'Спецкласс','trainer'),node('span',r.age,'age'));list.append(row);});$('.schedule-empty').hidden=rows.length>0;}
+function renderSchedule(){const coach=$('#coach-filter').value;const rows=content.schedule.filter(r=>r.day===day&&(coach==='all'||r.coach===coach)).sort((a,b)=>a.time.localeCompare(b.time));$('#schedule-day').textContent=day;const list=$('#schedule-list');list.replaceChildren();rows.forEach(r=>{const row=node('div',undefined,'schedule-row');row.setAttribute('aria-label',`${r.description}, ${r.direction}, ${r.coach}, ${r.age}`);const match=r.description.match(/^(\d{2}:\d{2}[–-]\d{2}:\d{2})\.?\s*(.*)$/);row.append(node('span',match?match[1]:r.time.slice(0,5),'schedule-time'));const activity=node('span',r.direction);if(match&&match[2]&&match[2].trim().toLowerCase()!==r.direction.toLowerCase())activity.append(node('span',match[2],'schedule-sub'));row.style.setProperty('--row-order',list.children.length);row.append(activity,node('span',r.coach||'Спецкласс','trainer'),node('span',r.age,'age'));list.append(row);});$('.schedule-empty').hidden=rows.length>0;}
 const chooseDay=tabGroup('.day-tabs',btn=>{day=btn.dataset.day;renderSchedule();});
 $('#coach-filter').addEventListener('change',renderSchedule);
 const money=n=>new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0}).format(n)+' ₽';
@@ -111,10 +111,19 @@ const direction=base%2? -1:1, width=innerWidth, gap=1900;
 scenes.forEach((scene,i)=>{
  let visible=false,x=0,z=-gap,angle=0;
  if(i===base){z=eased*gap;x=-direction*eased*width*.68;angle=direction*eased*8;visible=eased<.57;}
- else if(i===base+1){z=-(1-eased)*gap;x=direction*(1-eased)*width*.68;angle=-direction*(1-eased)*10;visible=eased>.08;}
+ else if(i===base+1){z=-(1-eased)*gap;x=direction*(1-eased)*width*.68;angle=-direction*(1-eased)*10;visible=eased>(scene.id==='directions'?.04:.08);}
  setStyle(scene,'visibility',visible?'visible':'hidden');
  setStyle(scene,'willChange',visible?'transform':'auto');
- if(visible){setStyle(scene,'opacity',1);setStyle(scene,'transform',`translate3d(${x.toFixed(2)}px,0,${z.toFixed(2)}px) rotateY(${angle.toFixed(2)}deg)`);}
+ if(visible){
+  let opacity=1;
+  if(scene.id==='directions'){
+   const arrival=Math.max(0,Math.min(1,(eased-.04)/.64));
+   const departure=Math.max(0,Math.min(1,(eased-.15)/.42));
+   opacity=i===base+1?arrival*arrival*(3-2*arrival):1-departure*departure*(3-2*departure);
+  }
+  setStyle(scene,'opacity',opacity);
+  setStyle(scene,'transform',`translate3d(${x.toFixed(2)}px,0,${z.toFixed(2)}px) rotateY(${angle.toFixed(2)}deg)`);
+ }
 });
 const musicWeight=(scenes[base].id==='music'?1-eased:0)+(scenes[base+1]?.id==='music'?eased:0);
 setStyle(instruments,'opacity',musicWeight*.75);
