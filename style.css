@@ -386,10 +386,10 @@ html.profile-open{overflow:hidden;scrollbar-gutter:stable}
 .depth-mode #history{padding-top:clamp(130px,17svh,190px)}
 @media(max-width:600px){.depth-mode #history{padding:104px 20px 100px}}
 
-.journey-player{position:fixed;left:2vw;bottom:66px;width:clamp(104px,11vw,144px);height:auto;pointer-events:none;z-index:8;opacity:.84;filter:drop-shadow(0 2px 2px rgba(255,255,255,.14))}
+.journey-player{position:fixed;left:2vw;bottom:110px;width:96px;height:auto;pointer-events:none;z-index:1;opacity:0;transition:opacity .8s ease;filter:drop-shadow(0 2px 2px rgba(255,255,255,.14))}
+.journey-player.player-visible{opacity:.78}
 .journey-player[hidden]{display:none}
 .journey-player.player-no-space{display:none}
-body:is([data-chapter=welcome],[data-chapter=contact]) .journey-player{filter:drop-shadow(0 0 2px rgba(251,217,47,.38));opacity:.95}
 .flat-mode .journey-player{display:none}
-@media(max-width:600px){.journey-player{left:10px;bottom:109px;width:72px;opacity:.75}}
+@media(max-width:600px){.journey-player{width:64px}.journey-player.player-visible{opacity:.65}}
 @media(prefers-reduced-motion:reduce){.journey-player{display:none}}
