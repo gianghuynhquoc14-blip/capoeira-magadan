@@ -395,6 +395,9 @@ html.profile-open{overflow:hidden;scrollbar-gutter:stable}
 @media(prefers-reduced-motion:reduce){.journey-player{display:none}}
 
 /* V21: an uninterrupted reading plane, with instruments in their own phone band. */
+.coach-photo{display:block;width:100%;height:190px;object-fit:cover;object-position:50% 25%;margin-bottom:22px;border-radius:4px}
+.coach-story-photo{display:block;width:min(260px,100%);height:auto;margin:0 auto 26px;border-radius:4px}
+@media(max-width:600px){.coach-photo{height:145px;margin-bottom:16px}.coaches h3{font-size:30px}.coach-story-photo{width:min(220px,100%)}}
 .depth-mode #music .scene-content{background:#d4e8dc;padding:16px 24px 20px}
 @media(min-width:601px){
  .depth-mode #music .scene-content{background:transparent}
