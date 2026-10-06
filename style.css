@@ -381,3 +381,7 @@ html.profile-open{overflow:hidden;scrollbar-gutter:stable}
  .coach-profile-close{font-size:12px;padding:0 2px}
  .coach-profile-body{padding:20px;font-size:15px;line-height:1.75}
 }
+
+
+.depth-mode #history{padding-top:clamp(130px,17svh,190px)}
+@media(max-width:600px){.depth-mode #history{padding:104px 20px 100px}}
