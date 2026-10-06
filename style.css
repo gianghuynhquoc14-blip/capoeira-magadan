@@ -393,3 +393,23 @@ html.profile-open{overflow:hidden;scrollbar-gutter:stable}
 .flat-mode .journey-player{display:none}
 @media(max-width:600px){.journey-player{width:64px}.journey-player.player-visible{opacity:.65}}
 @media(prefers-reduced-motion:reduce){.journey-player{display:none}}
+
+/* V21: an uninterrupted reading plane, with instruments in their own phone band. */
+.depth-mode #music .scene-content{background:#d4e8dc;padding:16px 24px 20px}
+@media(min-width:601px){
+ .depth-mode #music .scene-content{background:transparent}
+ .world .instruments,.music-atmosphere{
+  --reading-half:min(350px,calc(50vw - 50px));
+  mask-image:linear-gradient(to right,#000 calc(50% - var(--reading-half) - 40px),transparent calc(50% - var(--reading-half)),transparent calc(50% + var(--reading-half)),#000 calc(50% + var(--reading-half) + 40px));
+  -webkit-mask-image:linear-gradient(to right,#000 calc(50% - var(--reading-half) - 40px),transparent calc(50% - var(--reading-half)),transparent calc(50% + var(--reading-half)),#000 calc(50% + var(--reading-half) + 40px));
+ }
+ .world .instruments{width:min(95vw,1300px)}
+}
+@media(max-width:600px){
+ .music-atmosphere{display:none}
+ .depth-mode #music{align-items:flex-start;padding-top:90px}
+ .depth-mode #music .scene-content{max-height:calc(100svh - 214px - clamp(100px,32vw,150px));padding:8px 5px 16px}
+ .mobile-instruments{inset:auto 0 100px;height:clamp(100px,32vw,150px)}
+ .mobile-instruments .plate-half{width:clamp(100px,32vw,150px);height:100%}
+ .mobile-instruments .left{left:4vw}.mobile-instruments .right{right:4vw}
+}

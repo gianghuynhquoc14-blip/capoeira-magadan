@@ -102,6 +102,7 @@ function renderMusicAtmosphere(progress,weight){
  });
 }
 function sceneWeight(index,base,eased){return(base===index?1-eased:0)+(base+1===index?eased:0);}
+function smoothRange(value,start,end){const t=Math.max(0,Math.min(1,(value-start)/(end-start)));return t*t*(3-2*t);}
 function renderEdgeAtmospheres(progress,base,eased){
  edgeAtmospheres.forEach(({element,index,parts})=>{
   const weight=sceneWeight(index,base,eased);
@@ -117,19 +118,16 @@ function render(){raf=0;if(flat){let idx=0;scenes.forEach((s,i)=>{if(s.getBoundi
 const progress=Math.max(0,Math.min(scenes.length-1,scrollY/span));const base=Math.floor(progress),phase=progress-base;const t=Math.max(0,Math.min(1,(phase-.48)/.52));const eased=t*t*(3-2*t);const active=Math.min(scenes.length-1,base+(eased>.5?1:0));setCurrent(active);
 const direction=base%2? -1:1, width=innerWidth, gap=1900;
 scenes.forEach((scene,i)=>{
- let visible=false,x=0,z=-gap,angle=0;
- if(i===base){z=eased*gap;x=-direction*eased*width*.68;angle=direction*eased*8;visible=eased<.57;}
- else if(i===base+1){z=-(1-eased)*gap;x=direction*(1-eased)*width*.68;angle=-direction*(1-eased)*10;visible=eased>(scene.id==='directions'?.04:.08);}
+ let opacity=0,x=0,z=-gap,angle=0;
+ // Finish fading the outgoing text before revealing the next text plane.
+ // Background parallax still blends continuously through the whole journey.
+ if(i===base){z=eased*gap;x=-direction*eased*width*.68;angle=direction*eased*8;opacity=1-smoothRange(eased,.06,.42);}
+ else if(i===base+1){z=-(1-eased)*gap;x=direction*(1-eased)*width*.68;angle=-direction*(1-eased)*10;opacity=smoothRange(eased,.48,.94);}
+ const visible=opacity>.001;
  setStyle(scene,'visibility',visible?'visible':'hidden');
  setStyle(scene,'willChange',visible?'transform':'auto');
+ setStyle(scene,'opacity',opacity);
  if(visible){
-  let opacity=1;
-  if(scene.id==='directions'){
-   const arrival=Math.max(0,Math.min(1,(eased-.04)/.64));
-   const departure=Math.max(0,Math.min(1,(eased-.15)/.42));
-   opacity=i===base+1?arrival*arrival*(3-2*arrival):1-departure*departure*(3-2*departure);
-  }
-  setStyle(scene,'opacity',opacity);
   setStyle(scene,'transform',`translate3d(${x.toFixed(2)}px,0,${z.toFixed(2)}px) rotateY(${angle.toFixed(2)}deg)`);
  }
 });
