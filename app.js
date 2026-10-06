@@ -15,6 +15,14 @@ const heroForeground=$('#hero-foreground'),musicAtmosphere=$('.music-atmosphere'
 const musicIndex=scenes.findIndex(scene=>scene.id==='music');
 const edgeAtmospheres=['coaches','schedule'].map(id=>{const element=$('#'+id+'-atmosphere');return{element,scene:$('#'+id),index:scenes.findIndex(s=>s.id===id),parts:$$('[data-shift]',element)};});
 const clubMap=$('#club-map');function loadClubMap(){if(!clubMap.getAttribute('src'))clubMap.src=clubMap.dataset.src;}
+$$('[data-coach-profile]').forEach(button=>button.addEventListener('click',()=>{
+ const profile=$('#'+button.dataset.coachProfile);profile.showModal();
+ document.documentElement.classList.add('profile-open');
+}));
+$$('.coach-profile').forEach(profile=>{
+ $('[data-close-profile]',profile).addEventListener('click',()=>profile.close());
+ profile.addEventListener('close',()=>document.documentElement.classList.remove('profile-open'));
+});
 const chapterLinks=$$('.journey-nav a'),chapterCurrent=$('#chapter-current'),scrollHint=$('#scroll-hint');
 const styleCache=new WeakMap();
 let paintedChapter=-1,paintedFlat=null,lastLandscape=null;
