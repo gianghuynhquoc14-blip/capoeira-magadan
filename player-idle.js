@@ -21,7 +21,8 @@
  }
  function drawCell(character,pose,alpha){
   const image=images[character],grid=cells[character],col=pose%4,row=Math.floor(pose/4);
-  const sx=grid.x[col],sy=grid.y[row],w=grid.x[col+1]-sx,h=grid.y[row+1]-sy;
+  const rx=image.naturalWidth/1254,ry=image.naturalHeight/1254;
+  const sx=grid.x[col]*rx,sy=grid.y[row]*ry,w=(grid.x[col+1]-grid.x[col])*rx,h=(grid.y[row+1]-grid.y[row])*ry;
   const size=character>1?260:300,x=(320-size)/2,y=310-size;
   context.save();context.globalAlpha=alpha;
   context.drawImage(image,sx,sy,w,h,x,y,size,size);

@@ -13,10 +13,13 @@ const coastLayers=$$('[data-depth]',landscape),historyIndex=scenes.indexOf(histo
 const heroCoast=$('#hero-coast'),welcomeScene=$('#welcome'),heroCoastLayers=$$('[data-depth]',heroCoast);
 const heroForeground=$('#hero-foreground'),musicAtmosphere=$('.music-atmosphere'),musicMotes=$$('.music-mote');
 const musicIndex=scenes.findIndex(scene=>scene.id==='music');
+const deferredImages=$$('img[data-src]');
+function loadImage(image){if(!image.dataset.src)return;image.decoding='async';image.src=image.dataset.src;delete image.dataset.src;}
+function loadSceneAssets(index){const id=scenes[index]?.id;if(!id)return;deferredImages.forEach(image=>{if(image.dataset.assetScenes?.split(',').includes(id))loadImage(image);});}
 const edgeAtmospheres=['coaches','schedule'].map(id=>{const element=$('#'+id+'-atmosphere');return{element,scene:$('#'+id),index:scenes.findIndex(s=>s.id===id),parts:$$('[data-shift]',element)};});
 const clubMap=$('#club-map');function loadClubMap(){if(!clubMap.getAttribute('src'))clubMap.src=clubMap.dataset.src;}
 $$('[data-coach-profile]').forEach(button=>button.addEventListener('click',()=>{
- const profile=$('#'+button.dataset.coachProfile);profile.showModal();
+ const profile=$('#'+button.dataset.coachProfile);$$('img[data-src]',profile).forEach(loadImage);profile.showModal();
  document.documentElement.classList.add('profile-open');
 }));
 $$('.coach-profile').forEach(profile=>{
@@ -53,7 +56,7 @@ function indexForHash(hash){return scenes.findIndex(s=>'#'+s.id===hash);}
 function navigate(index,{focus=false,replace=false,instant=false}={}){if(index<0)return;if(flat){scenes[index].scrollIntoView({behavior:reduced.matches||instant?'instant':'smooth'});}else{window.scrollTo({top:index*span,behavior:reduced.matches||instant?'instant':'smooth'});}if(replace)history.replaceState(null,'','#'+scenes[index].id);else if(location.hash!=='#'+scenes[index].id)history.pushState(null,'','#'+scenes[index].id);if(focus){const h=$('h1,h2',scenes[index]);h.tabIndex=-1;setTimeout(()=>h.focus({preventScroll:true}),reduced.matches?0:550);}requestRender();}
 $$('a[href^="#"]').forEach(link=>link.addEventListener('click',e=>{const index=indexForHash(link.hash);if(index<0)return;e.preventDefault();if(link.dataset.coachNav){$('#coach-filter').value=link.dataset.coachNav;chooseDay($('[data-day="'+(link.dataset.coachNav==='Юрий'?'Вторник':'Понедельник')+'"]'));}if(link.dataset.priceNav)choosePrice($('[data-price="'+link.dataset.priceNav+'"]'));navigate(index,{focus:e.detail===0});}));
 window.addEventListener('popstate',()=>navigate(indexForHash(location.hash),{replace:true}));
-function setCurrent(index){current=index;if(scenes[index].id==='contact')loadClubMap();if(paintedChapter===index&&paintedFlat===flat)return;paintedChapter=index;paintedFlat=flat;scenes.forEach((scene,i)=>{scene.classList.toggle('active',i===index);if(!flat){scene.inert=i!==index;scene.setAttribute('aria-hidden',String(i!==index));}else{scene.inert=false;scene.removeAttribute('aria-hidden');}});chapterLinks.forEach((a,i)=>{a.classList.toggle('active',i===index);if(i===index)a.setAttribute('aria-current','step');else a.removeAttribute('aria-current');});document.body.dataset.chapter=scenes[index].id;if(!flat){document.documentElement.style.setProperty('--blue',palette[index]);document.body.style.backgroundColor=palette[index];}chapterCurrent.textContent=String(index+1).padStart(2,'0');scrollHint.innerHTML=index===0?'Прокрути, чтобы войти в круг <svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"></path></svg>':index===scenes.length-1?'Ты в круге. Давай знакомиться.':'Листай дальше <svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"></path></svg>';}
+function setCurrent(index){current=index;loadSceneAssets(index);if(scenes[index].id==='contact')loadClubMap();if(paintedChapter===index&&paintedFlat===flat)return;paintedChapter=index;paintedFlat=flat;scenes.forEach((scene,i)=>{scene.classList.toggle('active',i===index);if(!flat){scene.inert=i!==index;scene.setAttribute('aria-hidden',String(i!==index));}else{scene.inert=false;scene.removeAttribute('aria-hidden');}});chapterLinks.forEach((a,i)=>{a.classList.toggle('active',i===index);if(i===index)a.setAttribute('aria-current','step');else a.removeAttribute('aria-current');});document.body.dataset.chapter=scenes[index].id;if(!flat){document.documentElement.style.setProperty('--blue',palette[index]);document.body.style.backgroundColor=palette[index];}chapterCurrent.textContent=String(index+1).padStart(2,'0');scrollHint.innerHTML=index===0?'Прокрути, чтобы войти в круг <svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"></path></svg>':index===scenes.length-1?'Ты в круге. Давай знакомиться.':'Листай дальше <svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"></path></svg>';}
 function resetLandscape(){lastLandscape=null;}
 function shorelineOffset(layer){return -Math.max(layer.clientHeight,layer.clientWidth/2)*(34/887);}
 function registerFlatHeadlands(){heroCoastLayers.forEach(layer=>{if(layer.dataset.side!==undefined)setStyle(layer,'transform',`translate3d(0,${shorelineOffset(layer).toFixed(2)}px,0)`);});}
@@ -115,7 +118,7 @@ function renderEdgeAtmospheres(progress,base,eased){
  });
 }
 function render(){raf=0;if(flat){let idx=0;scenes.forEach((s,i)=>{if(s.getBoundingClientRect().top<=innerHeight*.45)idx=i;});setCurrent(idx);return;}
-const progress=Math.max(0,Math.min(scenes.length-1,scrollY/span));const base=Math.floor(progress),phase=progress-base;const t=Math.max(0,Math.min(1,(phase-.48)/.52));const eased=t*t*(3-2*t);const active=Math.min(scenes.length-1,base+(eased>.5?1:0));setCurrent(active);
+const progress=Math.max(0,Math.min(scenes.length-1,scrollY/span));const base=Math.floor(progress),phase=progress-base;const t=Math.max(0,Math.min(1,(phase-.48)/.52));const eased=t*t*(3-2*t);const active=Math.min(scenes.length-1,base+(eased>.5?1:0));setCurrent(active);loadSceneAssets(base);if(phase>.35)loadSceneAssets(base+1);
 const direction=base%2? -1:1, width=innerWidth, gap=1900;
 scenes.forEach((scene,i)=>{
  let opacity=0,x=0,z=-gap,angle=0;
@@ -144,7 +147,7 @@ function applyMode(next,{restore=true}={}){
  const index=current;flat=next;paintedChapter=-1;
  document.body.classList.toggle('flat-mode',flat);document.body.classList.toggle('depth-mode',!flat);
  if(flat){
-  loadClubMap();setStyle(musicAtmosphere,'visibility','hidden');
+  setStyle(musicAtmosphere,'visibility','hidden');
   edgeAtmospheres.forEach(({element,scene,parts})=>{scene.prepend(element);setStyle(element,'visibility','visible');setStyle(element,'opacity',1);parts.forEach(part=>{setStyle(part,'transform','none');setStyle(part,'willChange','auto');});});
   welcomeScene.prepend(heroCoast,heroForeground);
   setStyle(heroCoast,'visibility','visible');setStyle(heroCoast,'opacity',1);
@@ -182,6 +185,6 @@ window.addEventListener('resize',()=>{
  resetLandscape();requestRender();
 },{passive:true});
 reduced.addEventListener('change',e=>{if(e.matches)applyMode(true);});
-renderSchedule();renderPrices();let stored;try{stored=localStorage.getItem('capoeira-motion');}catch{}applyMode(reduced.matches||stored==='flat',{restore:false});const initial=Math.max(0,indexForHash(location.hash));current=initial;setTimeout(()=>navigate(initial,{replace:true,instant:true}),80);
+renderSchedule();renderPrices();let stored;try{stored=localStorage.getItem('capoeira-motion');}catch{}const initial=Math.max(0,indexForHash(location.hash));current=initial;loadSceneAssets(initial);applyMode(reduced.matches||stored==='flat',{restore:true});navigate(initial,{replace:true,instant:true});
 window.capoeiraJourney={navigate:(id)=>navigate(scenes.findIndex(s=>s.id===id)),get state(){return{flat,current,span};}};
 })();
