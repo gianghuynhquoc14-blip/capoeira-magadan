@@ -9,9 +9,12 @@
  function paused(){return document.hidden||reduced.matches||canvas.classList.contains('player-no-space')||document.body.classList.contains('flat-mode')||document.documentElement.classList.contains('profile-open');}
  function drawCell(row,column,alpha=1,rotation=0,lift=0){
   const cellWidth=image.naturalWidth/columns,cellHeight=image.naturalHeight/rows;
+  // The generated kick extends into the tucked pose's outer margin.
+  // Crop only that empty margin when displaying the tucked frame.
+  const inset=column===6?cellWidth*.12:0;
   context.save();context.globalAlpha=alpha;
   context.translate(160,160-lift);context.rotate(rotation);
-  context.drawImage(image,column*cellWidth,row*cellHeight,cellWidth,cellHeight,-150,-150,300,300);
+  context.drawImage(image,column*cellWidth+inset,row*cellHeight,cellWidth-inset,cellHeight,-150+inset/cellWidth*300,-150,300-inset/cellWidth*300,300);
   context.restore();
  }
  function paint(){
