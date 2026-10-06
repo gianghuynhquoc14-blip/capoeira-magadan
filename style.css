@@ -397,6 +397,26 @@ html.profile-open{overflow:hidden;scrollbar-gutter:stable}
 /* V21: an uninterrupted reading plane, with instruments in their own phone band. */
 .coach-photo{display:block;width:min(100%,240px);height:auto;aspect-ratio:2/3;object-fit:contain;margin-bottom:22px;border-radius:4px}
 .coach-story-photo{display:block;width:min(260px,100%);height:auto;margin:0 auto 26px;border-radius:4px}
+.history-copy .gallery-open{display:flex;margin:10px auto 0;padding:0;min-height:44px}
+.photo-gallery{border:0;padding:0;width:min(1100px,calc(100vw - 40px));max-height:calc(100svh - 40px);background:#f5fafc;color:var(--navy);border-radius:8px;overflow:hidden}
+.photo-gallery[open]{display:flex;flex-direction:column}
+.photo-gallery::backdrop,.photo-viewer::backdrop{background:rgba(5,27,43,.86)}
+.gallery-header{padding:24px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line);flex-shrink:0}
+.gallery-header h2{font-size:40px}.gallery-kicker{font-size:12px;letter-spacing:.05em;color:var(--green);margin-bottom:8px}
+.gallery-close{min-height:44px;font-size:13px;white-space:nowrap;font-weight:650;padding:8px}
+.gallery-grid{min-height:0;overflow:auto;overscroll-behavior:contain;padding:24px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:210px;align-content:start;gap:16px}
+.gallery-thumbnail{padding:0;background:#e2f1f8;width:100%;height:100%;min-height:0;border-radius:3px;overflow:hidden}
+.gallery-thumbnail img{display:block;width:100%;height:100%;object-fit:contain}
+.photo-viewer{padding:0;border:0;border-radius:8px;background:#0b2b40;color:#f5fafc;width:min(1200px,calc(100vw - 24px));max-height:calc(100svh - 24px);overflow:hidden}
+.photo-viewer[open]{display:flex;flex-direction:column}
+.gallery-viewer-header{display:flex;justify-content:space-between;align-items:center;padding:8px 20px;flex-shrink:0}
+.gallery-counter{font-size:13px;font-variant-numeric:tabular-nums}
+.photo-viewer figure{margin:0;min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 20px;text-align:center}
+.photo-viewer figure img{display:block;width:100%;height:min(68svh,740px);object-fit:contain}
+.photo-viewer figcaption{font-size:13px;padding:14px 0;line-height:1.6}
+.gallery-controls{display:flex;justify-content:space-between;padding:8px 20px;flex-shrink:0}
+.gallery-controls button{color:inherit;min-height:44px;padding:8px 12px;font-weight:650;font-size:13px}
+@media(max-width:600px){.photo-gallery{width:calc(100vw - 24px);max-height:calc(100svh - 24px)}.gallery-header{padding:18px 16px;gap:8px}.gallery-header h2{font-size:28px}.gallery-kicker{font-size:11px}.gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:125px;padding:14px;gap:10px}.gallery-viewer-header{padding:8px 12px}.photo-viewer figure{padding:0 10px}.photo-viewer figure img{height:62svh}.gallery-controls{padding:8px 10px}.history-copy .gallery-open{font-size:13px}}
 @media(max-width:600px){.coach-photo{width:100%;height:auto;margin-bottom:16px}.coaches h3{font-size:30px}.coach-story-photo{width:min(220px,100%)}}
 .depth-mode #music .scene-content{background:#d4e8dc;padding:16px 24px 20px}
 @media(min-width:601px){
