@@ -436,3 +436,48 @@ html.profile-open{overflow:hidden;scrollbar-gutter:stable}
  .mobile-instruments .plate-half{width:clamp(100px,32vw,150px);height:100%}
  .mobile-instruments .left{left:4vw}.mobile-instruments .right{right:4vw}
 }
+
+/* V28: phones use document scrolling; content never lives in a clipped scene. */
+@media(max-width:600px){
+ .flat-mode #journey{position:relative;overflow:visible}
+ .flat-mode .scene{height:auto;overflow:visible;scroll-margin-top:84px}
+ .flat-mode .scene .scene-content{height:auto;max-height:none;overflow:visible;padding:0;min-width:0}
+ .flat-mode .coaches{grid-template-columns:minmax(0,1fr);gap:40px;margin:28px auto;width:100%;max-width:360px}
+ .flat-mode .coaches article{min-width:0;padding-top:22px}
+ .flat-mode .coach-photo{width:min(240px,100%);margin-bottom:20px}
+ .flat-mode .coaches h3{font-size:36px;line-height:1.2;overflow-wrap:anywhere}
+ .flat-mode .coaches p{font-size:14px;line-height:1.7}
+ .flat-mode .coaches-atmosphere{display:none}
+ .flat-mode .journey-footer{position:static;padding:16px 24px;min-height:60px}
+ .flat-mode .chapter-counter{display:none}
+ .flat-mode #contact{padding-bottom:48px}
+}
+
+/* V30: offers entry and student conditions. */
+.hero-offers{display:flex;margin:6px auto 0;min-height:36px;color:var(--yellow);font-size:12px}
+.schedule-student-note{display:block;margin-top:5px;font-size:12px;line-height:1.5;font-weight:650;color:var(--green)}
+.student-offer h3{margin-bottom:18px}.student-offer .text-link{margin-top:18px}
+
+/* V31: one native scroll controls mobile reading and the animated journey. */
+.section-menu{position:relative;margin-left:auto}.section-menu summary{list-style:none;cursor:pointer;font-size:23px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;border:1px solid currentColor;border-radius:4px}.section-menu summary::-webkit-details-marker{display:none}
+.section-menu nav{position:absolute;right:0;top:calc(100% + 10px);width:220px;padding:10px;background:#f5fafc;color:#124463;border:1px solid #bfd3dc;border-radius:5px;box-shadow:0 8px 25px #082b4033;max-height:calc(100svh - 100px);overflow:auto}.section-menu nav a{display:block;padding:10px 12px;min-height:44px;font-size:14px}.section-menu nav a:hover{background:#e2f1f8}
+@media(max-width:600px){
+ .site-header{gap:8px;padding-right:12px;padding-left:12px}.top-nav{margin-left:auto;gap:10px}.section-menu{margin-left:0}.section-menu summary{min-width:36px;font-size:20px}.brand{font-size:11px;gap:6px}.top-nav{font-size:11px}
+ .depth-mode .scene .scene-content{overflow:hidden;scrollbar-width:none;max-height:calc(100vh - 190px);max-height:calc(100svh - 190px);overscroll-behavior:auto}
+ .depth-mode .welcome .scene-content{overflow:visible;max-height:none}
+ .depth-mode #music .scene-content{max-height:calc(100svh - 214px - clamp(100px,32vw,150px))}
+ .depth-mode #coaches .coaches{grid-template-columns:minmax(0,1fr);gap:32px;max-width:340px}
+ .depth-mode #coaches .coach-photo{width:min(210px,100%)}
+ .depth-mode .coach-pose,.depth-mode .coach-instrument{opacity:.12}
+ .coach-filter select{width:115px}.schedule-row{animation:none!important}.price-item{animation:none!important}
+ .journey-nav a{width:40px}.music-hours strong{font-size:19px}
+}
+
+@media(max-width:600px){.contact-map iframe{pointer-events:none}.journey-footer #scroll-hint{max-width:200px}.section-menu nav{max-width:calc(100vw - 24px)}}
+
+.depth-mode.mobile-reading .scene-content{overflow:hidden;scrollbar-width:none}
+.depth-mode.mobile-reading .welcome .scene-content{overflow:visible}
+@media(max-width:360px){.schedule-controls{flex-wrap:wrap}.day-tabs{width:100%;justify-content:space-between}.coach-filter{font-size:12px;gap:8px;margin-top:4px}.coach-filter select{width:160px}}
+@media(max-width:600px){.journey-nav a{width:min(40px,calc((100vw - 24px)/8))}}
+
+@media(max-width:600px){.schedule-row .trainer{display:block;grid-column:2;grid-row:2;font-size:11px;color:var(--muted)}.schedule-row .age{grid-column:3;grid-row:1}.schedule-row .schedule-time{grid-row:1}}

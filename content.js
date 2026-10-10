@@ -7,7 +7,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "7+",
-      "description": "16:00–17:00. Для новичков и продолжающих"
+      "description": "16:00–17:00. Для новичков и продолжающих",
+      "studentNote": ""
     },
     {
       "id": "SCH-02",
@@ -16,7 +17,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "5+",
-      "description": "18:30–19:30. Для новичков и продолжающих"
+      "description": "18:30–19:30. Для новичков и продолжающих",
+      "studentNote": ""
     },
     {
       "id": "SCH-03",
@@ -25,7 +27,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "11+",
-      "description": "17:15–18:15. Для новичков и продолжающих"
+      "description": "17:15–18:15. Для новичков и продолжающих",
+      "studentNote": ""
     },
     {
       "id": "SCH-04",
@@ -34,7 +37,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "15+, 18+",
-      "description": "19:45–21:00. Для новичков и продолжающих"
+      "description": "19:45–21:00. Для новичков и продолжающих",
+      "studentNote": "Для студентов — особые условия. Подробности у тренера."
     },
     {
       "id": "SCH-05",
@@ -43,7 +47,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Юрий",
       "age": "7+",
-      "description": "17:00–18:00. Для тех, кто хочет больше"
+      "description": "17:00–18:00",
+      "studentNote": ""
     },
     {
       "id": "SCH-06",
@@ -52,7 +57,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Юрий",
       "age": "4+",
-      "description": "18:30–19:30. Для тех, кто хочет больше"
+      "description": "18:30–19:30",
+      "studentNote": ""
     },
     {
       "id": "SCH-07",
@@ -61,7 +67,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "7+",
-      "description": "16:00–17:00. Для новичков и продолжающих"
+      "description": "16:00–17:00. Для новичков и продолжающих",
+      "studentNote": ""
     },
     {
       "id": "SCH-08",
@@ -70,7 +77,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "5+",
-      "description": "18:30–19:30. Для новичков и продолжающих"
+      "description": "18:30–19:30. Для новичков и продолжающих",
+      "studentNote": ""
     },
     {
       "id": "SCH-09",
@@ -79,7 +87,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "11+",
-      "description": "17:15–18:15. Для новичков и продолжающих"
+      "description": "17:15–18:15. Для новичков и продолжающих",
+      "studentNote": ""
     },
     {
       "id": "SCH-10",
@@ -88,7 +97,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "15+, 18+",
-      "description": "19:45–21:00. Для новичков и продолжающих"
+      "description": "19:45–21:00. Для новичков и продолжающих",
+      "studentNote": "Для студентов — особые условия. Подробности у тренера."
     },
     {
       "id": "SCH-11",
@@ -97,7 +107,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Юрий",
       "age": "7+",
-      "description": "17:00–18:00. Для тех, кто хочет больше"
+      "description": "17:00–18:00",
+      "studentNote": ""
     },
     {
       "id": "SCH-12",
@@ -106,7 +117,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Юрий",
       "age": "4+",
-      "description": "18:30–19:30. Для тех, кто хочет больше"
+      "description": "18:30–19:30",
+      "studentNote": ""
     },
     {
       "id": "SCH-13",
@@ -115,7 +127,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "7+",
-      "description": "16:00–17:00. Для новичков и продолжающих"
+      "description": "16:00–17:00. Для новичков и продолжающих",
+      "studentNote": ""
     },
     {
       "id": "SCH-14",
@@ -124,7 +137,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "5+",
-      "description": "18:30–19:30. Для новичков и продолжающих"
+      "description": "18:30–19:30. Для новичков и продолжающих",
+      "studentNote": ""
     },
     {
       "id": "SCH-15",
@@ -133,7 +147,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "11+",
-      "description": "17:15–18:15. Для новичков и продолжающих"
+      "description": "17:15–18:15. Для новичков и продолжающих",
+      "studentNote": ""
     },
     {
       "id": "SCH-16",
@@ -142,7 +157,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "15+, 18+",
-      "description": "19:45–21:00. Для новичков и продолжающих"
+      "description": "19:45–21:00. Для новичков и продолжающих",
+      "studentNote": "Для студентов — особые условия. Подробности у тренера."
     },
     {
       "id": "SCH-17",
@@ -151,7 +167,8 @@ window.CLUB_CONTENT = {
       "direction": "Музыка",
       "coach": "",
       "age": "10+",
-      "description": "12:00–13:00. Углублённые направления и развитие"
+      "description": "12:00–13:00. Углублённые направления и развитие",
+      "studentNote": ""
     },
     {
       "id": "SCH-18",
@@ -160,7 +177,8 @@ window.CLUB_CONTENT = {
       "direction": "Акробатика",
       "coach": "",
       "age": "7+",
-      "description": "13:00–14:00. Углублённые направления и развитие"
+      "description": "13:00–14:00. Углублённые направления и развитие",
+      "studentNote": ""
     },
     {
       "id": "SCH-19",
@@ -169,7 +187,8 @@ window.CLUB_CONTENT = {
       "direction": "Рода",
       "coach": "",
       "age": "10+",
-      "description": "14:00–15:00. Углублённые направления и развитие"
+      "description": "14:00–15:00. Углублённые направления и развитие",
+      "studentNote": ""
     },
     {
       "id": "SCH-20",
@@ -178,7 +197,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "7+",
-      "description": "09:30–10:30. Утро, 2/3 смена"
+      "description": "09:30–10:30. Утро, 2/3 смена",
+      "studentNote": ""
     },
     {
       "id": "SCH-21",
@@ -187,7 +207,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "11+",
-      "description": "10:45–11:45. Утро, 2 смена"
+      "description": "10:45–11:45. Утро, 2 смена",
+      "studentNote": ""
     },
     {
       "id": "SCH-22",
@@ -196,7 +217,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "7+",
-      "description": "09:30–10:30. Утро, 2/3 смена"
+      "description": "09:30–10:30. Утро, 2/3 смена",
+      "studentNote": ""
     },
     {
       "id": "SCH-23",
@@ -205,7 +227,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "11+",
-      "description": "10:45–11:45. Утро, 2 смена"
+      "description": "10:45–11:45. Утро, 2 смена",
+      "studentNote": ""
     },
     {
       "id": "SCH-24",
@@ -214,7 +237,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "7+",
-      "description": "09:30–10:30. Утро, 2/3 смена"
+      "description": "09:30–10:30. Утро, 2/3 смена",
+      "studentNote": ""
     },
     {
       "id": "SCH-25",
@@ -223,7 +247,8 @@ window.CLUB_CONTENT = {
       "direction": "Капоэйра",
       "coach": "Валерий",
       "age": "11+",
-      "description": "10:45–11:45. Утро, 2 смена"
+      "description": "10:45–11:45. Утро, 2 смена",
+      "studentNote": ""
     },
     {
       "id": "SCH-26",
@@ -232,7 +257,8 @@ window.CLUB_CONTENT = {
       "direction": "Батукада",
       "coach": "",
       "age": "—",
-      "description": "15:00–17:00. БАТУКАДА"
+      "description": "15:00–17:00. БАТУКАДА",
+      "studentNote": ""
     }
   ],
   "tariffs": [

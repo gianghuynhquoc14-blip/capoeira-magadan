@@ -7,6 +7,18 @@ const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const scenes=$$('.scene');
 const track=$('#scroll-track');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+const phone=matchMedia('(max-width:600px), (max-height:500px)');
+const readingPlanes=scenes.map(scene=>$('.scene-content',scene));
+let layoutCache=null;
+const hasLayoutObserver=typeof ResizeObserver!=='undefined';
+function journeyLayout(){
+ if(hasLayoutObserver&&layoutCache)return layoutCache;
+ const transition=Math.max(360,lastHeight),offsets=[],reading=[];let top=0;
+ readingPlanes.forEach((plane,i)=>{offsets.push(top);const distance=getComputedStyle(plane).overflowY==='visible'?0:Math.max(0,plane.scrollHeight-plane.clientHeight);reading.push(distance);top+=distance+(i<scenes.length-1?transition:0);});
+ return layoutCache={offsets,reading,transition,height:top+innerHeight};
+}
+function journeyOffset(index){return phone.matches?journeyLayout().offsets[index]:index*span;}
+function updateTrack(layout){const height=flat?0:phone.matches?(layout||journeyLayout()).height:span*(scenes.length-1)+innerHeight;if(track.style.height!==height+'px')track.style.height=height+'px';}
 const instruments=$('.instruments'),mobileInstruments=$('.mobile-instruments');
 const landscape=$('#magadan-landscape'),historyScene=$('#history');
 const coastLayers=$$('[data-depth]',landscape),historyIndex=scenes.indexOf(historyScene);
@@ -14,7 +26,7 @@ const heroCoast=$('#hero-coast'),welcomeScene=$('#welcome'),heroCoastLayers=$$('
 const heroForeground=$('#hero-foreground'),musicAtmosphere=$('.music-atmosphere'),musicMotes=$$('.music-mote');
 const musicIndex=scenes.findIndex(scene=>scene.id==='music');
 const deferredImages=$$('img[data-src]');
-function loadImage(image){if(!image.dataset.src)return;image.decoding='async';image.src=image.dataset.src;delete image.dataset.src;}
+function loadImage(image){if(!image.dataset.src)return;image.loading='eager';image.decoding='async';image.src=image.dataset.src;delete image.dataset.src;}
 function loadSceneAssets(index){const id=scenes[index]?.id;if(!id)return;deferredImages.forEach(image=>{if(image.dataset.assetScenes?.split(',').includes(id))loadImage(image);});}
 const edgeAtmospheres=['coaches','schedule'].map(id=>{const element=$('#'+id+'-atmosphere');return{element,scene:$('#'+id),index:scenes.findIndex(s=>s.id===id),parts:$$('[data-shift]',element)};});
 const clubMap=$('#club-map');function loadClubMap(){if(!clubMap.getAttribute('src'))clubMap.src=clubMap.dataset.src;}
@@ -44,19 +56,26 @@ const directions={
 function node(tag,text,className){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el;}
 function tabGroup(selector,onSelect){const group=$(selector);const tabs=$$('[role=tab]',group);function select(btn){tabs.forEach(t=>{t.setAttribute('aria-selected',String(t===btn));t.tabIndex=t===btn?0:-1;});const panel=$('#'+btn.getAttribute('aria-controls'));panel.setAttribute('aria-labelledby',btn.id);onSelect(btn);requestRender();}tabs.forEach((t,i)=>{t.addEventListener('click',()=>select(t));t.addEventListener('keydown',e=>{let j;if(e.key==='ArrowRight')j=(i+1)%tabs.length;if(e.key==='ArrowLeft')j=(i-1+tabs.length)%tabs.length;if(e.key==='Home')j=0;if(e.key==='End')j=tabs.length-1;if(j!==undefined){e.preventDefault();select(tabs[j]);tabs[j].focus();}});});return select;}
 const chooseDirection=tabGroup('.direction-tabs',btn=>{const d=directions[btn.dataset.direction];const p=$('#direction-panel');p.replaceChildren(node('h3',d.title),node('p',d.text),node('span',d.age,'age-line'));});
-function renderSchedule(){const coach=$('#coach-filter').value;const rows=content.schedule.filter(r=>r.day===day&&(coach==='all'||r.coach===coach)).sort((a,b)=>a.time.localeCompare(b.time));$('#schedule-day').textContent=day;const list=$('#schedule-list');list.replaceChildren();rows.forEach(r=>{const row=node('div',undefined,'schedule-row');row.setAttribute('aria-label',`${r.description}, ${r.direction}, ${r.coach}, ${r.age}`);const match=r.description.match(/^(\d{2}:\d{2}[–-]\d{2}:\d{2})\.?\s*(.*)$/);row.append(node('span',match?match[1]:r.time.slice(0,5),'schedule-time'));const activity=node('span',r.direction);if(match&&match[2]&&match[2].trim().toLowerCase()!==r.direction.toLowerCase())activity.append(node('span',match[2],'schedule-sub'));row.style.setProperty('--row-order',list.children.length);row.append(activity,node('span',r.coach||'Спецкласс','trainer'),node('span',r.age,'age'));list.append(row);});$('.schedule-empty').hidden=rows.length>0;}
+function renderSchedule(){layoutCache=null;const coach=$('#coach-filter').value;const rows=content.schedule.filter(r=>r.day===day&&(coach==='all'||r.coach===coach)).sort((a,b)=>a.time.localeCompare(b.time));$('#schedule-day').textContent=day;const list=$('#schedule-list');list.replaceChildren();rows.forEach(r=>{const row=node('div',undefined,'schedule-row');row.setAttribute('aria-label',`${r.description}, ${r.direction}, ${r.coach}, ${r.age}`);const match=r.description.match(/^(\d{2}:\d{2}[–-]\d{2}:\d{2})\.?\s*(.*)$/);row.append(node('span',match?match[1]:r.time.slice(0,5),'schedule-time'));const activity=node('span',r.direction);if(match&&match[2]&&match[2].trim().toLowerCase()!==r.direction.toLowerCase())activity.append(node('span',match[2],'schedule-sub'));if(r.studentNote)activity.append(node('span',r.studentNote,'schedule-student-note'));row.style.setProperty('--row-order',list.children.length);row.append(activity,node('span',r.coach||'Спецкласс','trainer'),node('span',r.age,'age'));list.append(row);});$('.schedule-empty').hidden=rows.length>0;if(phone.matches&&!flat&&scenes[current].id==='schedule')window.scrollTo({top:journeyOffset(current),behavior:'instant'});}
 const chooseDay=tabGroup('.day-tabs',btn=>{day=btn.dataset.day;renderSchedule();});
 $('#coach-filter').addEventListener('change',renderSchedule);
+const lessonPlural=new Intl.PluralRules('ru-RU');
+const lessonWord=n=>({one:'занятие',few:'занятия',many:'занятий',other:'занятия'}[lessonPlural.select(n)]);
 const money=n=>new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0}).format(n)+' ₽';
-function renderPrices(){const localDate=new Intl.DateTimeFormat('sv-SE',{timeZone:content.timeZone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const after=localDate>=content.cutoff;let rows=content.tariffs.filter(r=>r.direction===priceDirection);if(priceDirection==='Капоэйра')rows=rows.filter(r=>r.id==='CAP-SINGLE'||r.id.endsWith(after?'-NOV':'-START'));const list=$('#price-list');list.replaceChildren();rows.forEach(r=>{const item=node('article',undefined,'price-item');item.append(node('h3',r.lessons===1?'Разовое занятие':`${r.lessons} занятий`),node('p',money(r.price),'price-amount'));list.append(item);});list.style.gridTemplateColumns=`repeat(${rows.length},1fr)`;$('#price-condition').textContent=priceDirection==='Капоэйра'?(after?'Для присоединившихся с 1 ноября 2026 года. Если присоединились раньше, стартовая цена сохраняется на учебный год.':'Для присоединившихся до 1 ноября 2026 года. Стартовая цена сохраняется на учебный год.'):(priceDirection==='Батукада'?'Самостоятельное направление. Условия подключения к капоэйре — ниже.':'Можно заниматься отдельно. Для владельцев абонемента по капоэйре есть специальные цены.');$('#future-price').hidden=priceDirection!=='Капоэйра'||after;}
+function renderPrices(){layoutCache=null;const localDate=new Intl.DateTimeFormat('sv-SE',{timeZone:content.timeZone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const after=localDate>=content.cutoff;let rows=content.tariffs.filter(r=>r.direction===priceDirection);if(priceDirection==='Капоэйра')rows=rows.filter(r=>r.id==='CAP-SINGLE'||r.id.endsWith(after?'-NOV':'-START'));const list=$('#price-list');list.replaceChildren();rows.forEach(r=>{const item=node('article',undefined,'price-item');item.append(node('h3',r.lessons===1?'Разовое занятие':`${r.lessons} ${lessonWord(r.lessons)}`),node('p',money(r.price),'price-amount'));list.append(item);});list.style.gridTemplateColumns=`repeat(${rows.length},1fr)`;$('#price-condition').textContent=priceDirection==='Капоэйра'?(after?'Для присоединившихся с 1 ноября 2026 года. Если присоединились раньше, стартовая цена сохраняется на учебный год.':'Для присоединившихся до 1 ноября 2026 года. Стартовая цена сохраняется на учебный год.'):(priceDirection==='Батукада'?'Самостоятельное направление. Условия подключения к капоэйре — ниже.':'Можно заниматься отдельно. Для владельцев абонемента по капоэйре есть специальные цены.');$('#future-price').hidden=priceDirection!=='Капоэйра'||after;}
 const choosePrice=tabGroup('.price-tabs',btn=>{priceDirection=btn.dataset.price;renderPrices();});
 content.faq.forEach(r=>{const p=node('p');p.append(node('strong',r.question),document.createElement('br'),document.createTextNode(r.answer));$('#bonus-content').append(p);});
 $$('details').forEach(el=>el.addEventListener('toggle',requestRender));
 function indexForHash(hash){return scenes.findIndex(s=>'#'+s.id===hash);}
-function navigate(index,{focus=false,replace=false,instant=false}={}){if(index<0)return;if(flat){scenes[index].scrollIntoView({behavior:reduced.matches||instant?'instant':'smooth'});}else{window.scrollTo({top:index*span,behavior:reduced.matches||instant?'instant':'smooth'});}if(replace)history.replaceState(null,'','#'+scenes[index].id);else if(location.hash!=='#'+scenes[index].id)history.pushState(null,'','#'+scenes[index].id);if(focus){const h=$('h1,h2',scenes[index]);h.tabIndex=-1;setTimeout(()=>h.focus({preventScroll:true}),reduced.matches?0:550);}requestRender();}
-$$('a[href^="#"]').forEach(link=>link.addEventListener('click',e=>{const index=indexForHash(link.hash);if(index<0)return;e.preventDefault();if(link.dataset.coachNav){$('#coach-filter').value=link.dataset.coachNav;chooseDay($('[data-day="'+(link.dataset.coachNav==='Юрий'?'Вторник':'Понедельник')+'"]'));}if(link.dataset.priceNav)choosePrice($('[data-price="'+link.dataset.priceNav+'"]'));navigate(index,{focus:e.detail===0});}));
+function navigate(index,{focus=false,replace=false,instant=false}={}){if(index<0)return;if(flat){scenes[index].scrollIntoView({behavior:reduced.matches||instant?'instant':'smooth'});}else{window.scrollTo({top:journeyOffset(index),behavior:reduced.matches||instant?'instant':'smooth'});}if(replace)history.replaceState(null,'','#'+scenes[index].id);else if(location.hash!=='#'+scenes[index].id)history.pushState(null,'','#'+scenes[index].id);if(focus){const h=$('h1,h2',scenes[index]);h.tabIndex=-1;setTimeout(()=>h.focus({preventScroll:true}),reduced.matches?0:550);}requestRender();}
+$$('a[href^="#"]').forEach(link=>link.addEventListener('click',e=>{const index=indexForHash(link.hash);if(index<0)return;e.preventDefault();if(link.dataset.coachNav){$('#coach-filter').value=link.dataset.coachNav;chooseDay($('[data-day="'+(link.dataset.coachNav==='Юрий'?'Вторник':'Понедельник')+'"]'));}if(link.dataset.priceNav)choosePrice($('[data-price="'+link.dataset.priceNav+'"]'));navigate(index,{focus:e.detail===0,instant:phone.matches});}));
 window.addEventListener('popstate',()=>navigate(indexForHash(location.hash),{replace:true}));
-function setCurrent(index){current=index;loadSceneAssets(index);if(scenes[index].id==='contact')loadClubMap();if(paintedChapter===index&&paintedFlat===flat)return;paintedChapter=index;paintedFlat=flat;scenes.forEach((scene,i)=>{scene.classList.toggle('active',i===index);if(!flat){scene.inert=i!==index;scene.setAttribute('aria-hidden',String(i!==index));}else{scene.inert=false;scene.removeAttribute('aria-hidden');}});chapterLinks.forEach((a,i)=>{a.classList.toggle('active',i===index);if(i===index)a.setAttribute('aria-current','step');else a.removeAttribute('aria-current');});document.body.dataset.chapter=scenes[index].id;if(!flat){document.documentElement.style.setProperty('--blue',palette[index]);document.body.style.backgroundColor=palette[index];}chapterCurrent.textContent=String(index+1).padStart(2,'0');scrollHint.innerHTML=index===0?'Прокрути, чтобы войти в круг <svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"></path></svg>':index===scenes.length-1?'Ты в круге. Давай знакомиться.':'Листай дальше <svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"></path></svg>';}
+window.addEventListener('hashchange',()=>navigate(indexForHash(location.hash),{replace:true,instant:true}));
+const sectionMenu=$('.section-menu');
+$$('a',sectionMenu).forEach(link=>link.addEventListener('click',()=>{sectionMenu.open=false;}));
+document.addEventListener('click',event=>{if(!sectionMenu.contains(event.target))sectionMenu.open=false;});
+document.addEventListener('keydown',event=>{if(event.key==='Escape')sectionMenu.open=false;});
+function setCurrent(index){current=index;loadSceneAssets(index);loadSceneAssets(index+1);if(scenes[index].id==='contact')loadClubMap();if(paintedChapter===index&&paintedFlat===flat)return;paintedChapter=index;paintedFlat=flat;if(location.hash!=='#'+scenes[index].id)history.replaceState(null,'','#'+scenes[index].id);scenes.forEach((scene,i)=>{scene.classList.toggle('active',i===index);if(!flat){scene.inert=i!==index;scene.setAttribute('aria-hidden',String(i!==index));}else{scene.inert=false;scene.removeAttribute('aria-hidden');}});chapterLinks.forEach((a,i)=>{a.classList.toggle('active',i===index);if(i===index)a.setAttribute('aria-current','step');else a.removeAttribute('aria-current');});document.body.dataset.chapter=scenes[index].id;if(!flat){document.documentElement.style.setProperty('--blue',palette[index]);document.body.style.backgroundColor=palette[index];}chapterCurrent.textContent=String(index+1).padStart(2,'0');scrollHint.setAttribute('aria-label',index===scenes.length-1?'Вернуться в начало':'Следующий раздел: '+scenes[index+1].dataset.label);scrollHint.innerHTML=index===0?'Дальше · направления <svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"></path></svg>':index===scenes.length-1?'Вернуться в начало ↑':'Листай дальше <svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"></path></svg>';}
 function resetLandscape(){lastLandscape=null;}
 function shorelineOffset(layer){return -Math.max(layer.clientHeight,layer.clientWidth/2)*(34/887);}
 function registerFlatHeadlands(){heroCoastLayers.forEach(layer=>{if(layer.dataset.side!==undefined)setStyle(layer,'transform',`translate3d(0,${shorelineOffset(layer).toFixed(2)}px,0)`);});}
@@ -117,15 +136,24 @@ function renderEdgeAtmospheres(progress,base,eased){
   });
  });
 }
-function render(){raf=0;if(flat){let idx=0;scenes.forEach((s,i)=>{if(s.getBoundingClientRect().top<=innerHeight*.45)idx=i;});setCurrent(idx);return;}
-const progress=Math.max(0,Math.min(scenes.length-1,scrollY/span));const base=Math.floor(progress),phase=progress-base;const t=Math.max(0,Math.min(1,(phase-.48)/.52));const eased=t*t*(3-2*t);const active=Math.min(scenes.length-1,base+(eased>.5?1:0));setCurrent(active);loadSceneAssets(base);if(phase>.35)loadSceneAssets(base+1);
+function render(){raf=0;if(flat){let idx=0;scenes.forEach((s,i)=>{const top=s.getBoundingClientRect().top;if(top<=innerHeight*.45)idx=i;if(top<innerHeight)loadSceneAssets(i);});setCurrent(idx);return;}
+let base,phase,progress,t;
+if(phone.matches){
+ const layout=journeyLayout();updateTrack(layout);base=0;
+ layout.offsets.forEach((offset,i)=>{if(scrollY>=offset)base=i;});
+ const local=Math.max(0,scrollY-layout.offsets[base]);
+ readingPlanes.forEach((plane,i)=>{const top=i<base?layout.reading[i]:i===base?Math.min(local,layout.reading[i]):0;if(Math.abs(plane.scrollTop-top)>1)plane.scrollTop=top;});
+ phase=base===scenes.length-1?0:Math.max(0,Math.min(1,(local-layout.reading[base])/layout.transition));
+ progress=base+phase;t=phase;
+}else{progress=Math.max(0,Math.min(scenes.length-1,scrollY/span));base=Math.floor(progress);phase=progress-base;t=Math.max(0,Math.min(1,(phase-.48)/.52));}
+const eased=t*t*(3-2*t);const active=Math.min(scenes.length-1,base+(eased>.5?1:0));setCurrent(active);loadSceneAssets(base);if(phase>.35)loadSceneAssets(base+1);
 const direction=base%2? -1:1, width=innerWidth, gap=1900;
 scenes.forEach((scene,i)=>{
  let opacity=0,x=0,z=-gap,angle=0;
  // Finish fading the outgoing text before revealing the next text plane.
  // Background parallax still blends continuously through the whole journey.
- if(i===base){z=eased*gap;x=-direction*eased*width*.68;angle=direction*eased*8;opacity=1-smoothRange(eased,.06,.42);}
- else if(i===base+1){z=-(1-eased)*gap;x=direction*(1-eased)*width*.68;angle=-direction*(1-eased)*10;opacity=smoothRange(eased,.48,.94);}
+ if(i===base){z=eased*gap;x=-direction*eased*width*.68;angle=direction*eased*8;opacity=1-smoothRange(eased,.06,phone.matches ? .5 : .42);}
+ else if(i===base+1){z=-(1-eased)*gap;x=direction*(1-eased)*width*.68;angle=-direction*(1-eased)*10;opacity=smoothRange(eased,phone.matches ? .5 : .48,.94);}
  const visible=opacity>.001;
  setStyle(scene,'visibility',visible?'visible':'hidden');
  setStyle(scene,'willChange',visible?'transform':'auto');
@@ -144,7 +172,7 @@ renderLandscape(progress,coastWeight);
 renderHeroCoast(progress,base===0?1-eased:0);}
 function requestRender(){if(!raf)raf=requestAnimationFrame(render);}
 function applyMode(next,{restore=true}={}){
- const index=current;flat=next;paintedChapter=-1;
+ const index=current;flat=next;layoutCache=null;document.body.classList.toggle('mobile-reading',phone.matches);paintedChapter=-1;
  document.body.classList.toggle('flat-mode',flat);document.body.classList.toggle('depth-mode',!flat);
  if(flat){
   setStyle(musicAtmosphere,'visibility','hidden');
@@ -165,26 +193,31 @@ function applyMode(next,{restore=true}={}){
   setStyle(heroForeground,'visibility','hidden');
   setStyle(landscape,'visibility','hidden');setStyle(landscape,'opacity',0);
  }
- span=Math.max(innerHeight*1.65,900);track.style.height=flat?'0px':`${span*(scenes.length-1)+innerHeight}px`;
+ span=Math.max(innerHeight*1.65,900);updateTrack();
  scenes.forEach(s=>{styleCache.delete(s);s.style.willChange='';s.style.transform='';s.style.opacity='';s.style.visibility='';s.inert=false;s.removeAttribute('aria-hidden');});
  $('#motion-toggle').setAttribute('aria-pressed',String(flat));$('#motion-toggle span').textContent=flat?'Включить глубину':'Без анимации';
  document.documentElement.style.setProperty('--blue',flat?'#e2f1f8':sceneColors.welcome);document.body.style.backgroundColor='';resetLandscape();
- if(restore){if(flat)window.scrollTo({top:scenes[index].offsetTop,behavior:'instant'});else window.scrollTo({top:index*span,behavior:'instant'});}
+ if(restore){if(flat)window.scrollTo({top:scenes[index].offsetTop,behavior:'instant'});else window.scrollTo({top:journeyOffset(index),behavior:'instant'});}
  requestRender();
 }
-$('#motion-toggle').addEventListener('click',()=>{applyMode(!flat);try{localStorage.setItem('capoeira-motion',flat?'flat':'depth');}catch{}});
+$('#motion-toggle').addEventListener('click',()=>{applyMode(!flat);stored=flat?'flat':'depth';try{localStorage.setItem('capoeira-motion',stored);}catch{}});
+scrollHint.addEventListener('click',()=>navigate(current===scenes.length-1?0:current+1));
 window.addEventListener('scroll',requestRender,{passive:true});
 window.addEventListener('resize',()=>{
- const restore=Math.abs(innerHeight-lastHeight)>150||innerWidth>600,index=current;
+ layoutCache=null;
+ const restore=Math.abs(innerHeight-lastHeight)>150||(innerWidth>600&&!phone.matches),index=current;
  if(restore){
   lastHeight=innerHeight;span=Math.max(innerHeight*1.65,900);
  }
- track.style.height=flat?'0px':`${span*(scenes.length-1)+innerHeight}px`;
+ updateTrack();
  if(flat)registerFlatHeadlands();
- if(!flat&&(restore||index===scenes.length-1))window.scrollTo({top:index*span,behavior:'instant'});
+ if(!flat&&restore)window.scrollTo({top:journeyOffset(index),behavior:'instant'});
  resetLandscape();requestRender();
 },{passive:true});
+phone.addEventListener('change',()=>{layoutCache=null;lastHeight=innerHeight;document.body.classList.toggle('mobile-reading',phone.matches);readingPlanes.forEach(plane=>plane.scrollTop=0);updateTrack();if(!flat)window.scrollTo({top:journeyOffset(current),behavior:'instant'});requestRender();});
 reduced.addEventListener('change',e=>{if(e.matches)applyMode(true);});
+const layoutObserver=hasLayoutObserver?new ResizeObserver(()=>{layoutCache=null;requestRender();}):null;
+if(layoutObserver)readingPlanes.forEach(plane=>{layoutObserver.observe(plane);Array.from(plane.children).forEach(child=>layoutObserver.observe(child));});
 renderSchedule();renderPrices();let stored;try{stored=localStorage.getItem('capoeira-motion');}catch{}const initial=Math.max(0,indexForHash(location.hash));current=initial;loadSceneAssets(initial);applyMode(reduced.matches||stored==='flat',{restore:true});navigate(initial,{replace:true,instant:true});
-window.capoeiraJourney={navigate:(id)=>navigate(scenes.findIndex(s=>s.id===id)),get state(){return{flat,current,span};}};
+window.capoeiraJourney={navigate:(id)=>navigate(scenes.findIndex(s=>s.id===id)),get state(){return{flat,current,span,mobileReading:phone.matches};}};
 })();
