@@ -481,3 +481,6 @@ html.profile-open{overflow:hidden;scrollbar-gutter:stable}
 @media(max-width:600px){.journey-nav a{width:min(40px,calc((100vw - 24px)/8))}}
 
 @media(max-width:600px){.schedule-row .trainer{display:block;grid-column:2;grid-row:2;font-size:11px;color:var(--muted)}.schedule-row .age{grid-column:3;grid-row:1}.schedule-row .schedule-time{grid-row:1}}
+
+#seo-links nav{display:flex;flex-wrap:wrap;gap:10px 20px}#seo-links a{color:inherit;text-underline-offset:4px}#seo-links{margin:18px 0;font-size:14px}
+
