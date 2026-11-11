@@ -159,112 +159,12 @@ window.CLUB_CONTENT = {
       "age": "15+, 18+",
       "description": "19:45–21:00. Для новичков и продолжающих",
       "studentNote": "Для студентов — особые условия. Подробности у тренера."
-    },
-    {
-      "id": "SCH-17",
-      "day": "Суббота",
-      "time": "12:00:00",
-      "direction": "Музыка",
-      "coach": "",
-      "age": "10+",
-      "description": "12:00–13:00. Углублённые направления и развитие",
-      "studentNote": ""
-    },
-    {
-      "id": "SCH-18",
-      "day": "Суббота",
-      "time": "13:00:00",
-      "direction": "Акробатика",
-      "coach": "",
-      "age": "7+",
-      "description": "13:00–14:00. Углублённые направления и развитие",
-      "studentNote": ""
-    },
-    {
-      "id": "SCH-19",
-      "day": "Суббота",
-      "time": "14:00:00",
-      "direction": "Рода",
-      "coach": "",
-      "age": "10+",
-      "description": "14:00–15:00. Углублённые направления и развитие",
-      "studentNote": ""
-    },
-    {
-      "id": "SCH-20",
-      "day": "Понедельник",
-      "time": "09:30:00",
-      "direction": "Капоэйра",
-      "coach": "Валерий",
-      "age": "7+",
-      "description": "09:30–10:30. Утро, 2/3 смена",
-      "studentNote": ""
-    },
-    {
-      "id": "SCH-21",
-      "day": "Понедельник",
-      "time": "10:45:00",
-      "direction": "Капоэйра",
-      "coach": "Валерий",
-      "age": "11+",
-      "description": "10:45–11:45. Утро, 2 смена",
-      "studentNote": ""
-    },
-    {
-      "id": "SCH-22",
-      "day": "Среда",
-      "time": "09:30:00",
-      "direction": "Капоэйра",
-      "coach": "Валерий",
-      "age": "7+",
-      "description": "09:30–10:30. Утро, 2/3 смена",
-      "studentNote": ""
-    },
-    {
-      "id": "SCH-23",
-      "day": "Среда",
-      "time": "10:45:00",
-      "direction": "Капоэйра",
-      "coach": "Валерий",
-      "age": "11+",
-      "description": "10:45–11:45. Утро, 2 смена",
-      "studentNote": ""
-    },
-    {
-      "id": "SCH-24",
-      "day": "Пятница",
-      "time": "09:30:00",
-      "direction": "Капоэйра",
-      "coach": "Валерий",
-      "age": "7+",
-      "description": "09:30–10:30. Утро, 2/3 смена",
-      "studentNote": ""
-    },
-    {
-      "id": "SCH-25",
-      "day": "Пятница",
-      "time": "10:45:00",
-      "direction": "Капоэйра",
-      "coach": "Валерий",
-      "age": "11+",
-      "description": "10:45–11:45. Утро, 2 смена",
-      "studentNote": ""
-    },
-    {
-      "id": "SCH-26",
-      "day": "Суббота",
-      "time": "15:00:00",
-      "direction": "Батукада",
-      "coach": "",
-      "age": "—",
-      "description": "15:00–17:00. БАТУКАДА",
-      "studentNote": ""
     }
   ],
   "tariffs": [],
   "faq": [],
   "cutoff": "2026-11-01",
-  "sourceDate": "2026-10-04",
+  "sourceDate": "2026-11-11",
   "timeZone": "Asia/Magadan",
   "pricingPublished": false
 };
