@@ -53,11 +53,11 @@ window.CLUB_CONTENT = {
     {
       "id": "SCH-06",
       "day": "Вторник",
-      "time": "18:30:00",
+      "time": "18:40:00",
       "direction": "Капоэйра",
       "coach": "Юрий",
       "age": "4+",
-      "description": "18:30–19:30",
+      "description": "18:40–19:20",
       "studentNote": ""
     },
     {
@@ -113,11 +113,11 @@ window.CLUB_CONTENT = {
     {
       "id": "SCH-12",
       "day": "Четверг",
-      "time": "18:30:00",
+      "time": "18:40:00",
       "direction": "Капоэйра",
       "coach": "Юрий",
       "age": "4+",
-      "description": "18:30–19:30",
+      "description": "18:40–19:20",
       "studentNote": ""
     },
     {
